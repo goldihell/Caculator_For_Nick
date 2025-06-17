@@ -8,64 +8,107 @@ namespace Calculator_for_nick
 {
     internal class Program
     {
-        enum CalculatorActions { Add, Subtract, Multiply, Divide }
+        enum CalculatorActions { None, Add, Subtract, Multiply, Divide }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Enter the first number please:");
-            float num1 = GetNumber();
+            Console.WriteLine("Enter numbers or action you want please (+, -, *, /,=)");
 
-            Console.WriteLine("Choose the action you want please (+, -, *, /):");
-            CalculatorActions action = GetAction();
+            float currentResult = 0;
+            CalculatorActions lastAction = CalculatorActions.None;
+            bool expectingNumber = true;
 
-            Console.WriteLine("Enter the second number please:");
-            float num2 = GetNumber();
+            List<string> expressionParts = new List<string>();
 
-            float result = CalculateResult(action, num1, num2);
-
-            string actionSymbol = GetActionSymbol(action);
-            Console.WriteLine("Your action was:" + num1 + actionSymbol + num2 + "  And the result is:" + result);
-        }
-
-        static float GetNumber()
-        {
             while (true)
             {
-                string input = Console.ReadLine();
-
-                bool success = float.TryParse(input, out float number);
-
-                if (success && !float.IsNaN(number))
+                if (expectingNumber)
                 {
-                    return number;
+                    Console.Write("Current result:" + currentResult+". Enter a number: ");
                 }
                 else
                 {
-                    Console.WriteLine("Invalid input. Please enter a valid number:");
+                    Console.Write("Current result:"+ currentResult+ ". Enter an action (+, -, *, /,=):");
+                }
+
+                string input = Console.ReadLine().ToLower().Trim();
+
+
+                if (input == "=")
+                {
+                    if (expectingNumber && lastAction != CalculatorActions.None)
+                    {
+                        Console.WriteLine("Error you can't end with action. enter number");
+                        continue;
+                    }
+                    else if (!expressionParts.Any())
+                    {
+                        Console.WriteLine("Please enter number before you enter =");
+                        continue;
+                    }
+
+                    Console.WriteLine(string.Join("", expressionParts)+"="+currentResult);
+
+                    currentResult = 0;
+                    lastAction = CalculatorActions.None;
+                    expectingNumber = true;
+                    expressionParts.Clear(); ;
+                    continue;
+                }
+
+                if (expectingNumber)
+                {
+                    bool isNumber = float.TryParse(input, out float numberInput);
+                    if (isNumber)
+                    {
+                        if (lastAction == CalculatorActions.None)
+                        {
+                            currentResult = numberInput;
+                        }
+                        else
+                        {
+                            currentResult = CalculateResult(lastAction, currentResult, numberInput);
+                        }
+                        expressionParts.Add(input); 
+                        expectingNumber = false; 
+                        lastAction = CalculatorActions.None; 
+                    }
+                    else
+                    {
+                        Console.WriteLine("It is not relevant");
+                    }
+                }
+                else 
+                {
+                    CalculatorActions newAction = GetActionFromString(input);
+                    if (newAction != CalculatorActions.None)
+                    {
+                        lastAction = newAction; 
+                        expressionParts.Add(GetActionSymbol(newAction)); 
+                        expectingNumber = true; 
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error!!! Please enter action (+, -, *, /,=) ");
+                    }
                 }
             }
         }
 
-        static CalculatorActions GetAction()
+        static CalculatorActions GetActionFromString(string input)
         {
-            while (true)
+            switch (input)
             {
-                string input = Console.ReadLine();
-
-                switch (input)
-                {
-                    case "+":
-                        return CalculatorActions.Add;
-                    case "-":
-                        return CalculatorActions.Subtract;
-                    case "*":
-                        return CalculatorActions.Multiply;
-                    case "/":
-                        return CalculatorActions.Divide;
-                    default:
-                        Console.WriteLine("Invalid action. Please enter one of (+, -, *, /):");
-                        break;
-                }
+                case "+":
+                    return CalculatorActions.Add;
+                case "-":
+                    return CalculatorActions.Subtract;
+                case "*":
+                    return CalculatorActions.Multiply;
+                case "/":
+                    return CalculatorActions.Divide;
+                default:
+                    return CalculatorActions.None; 
             }
         }
 
@@ -82,9 +125,10 @@ namespace Calculator_for_nick
                 case CalculatorActions.Divide:
                     return "/";
                 default:
-                    return "!";
+                    return ""; 
             }
         }
+
         static float CalculateResult(CalculatorActions action, float num1, float num2)
         {
             switch (action)
@@ -98,13 +142,13 @@ namespace Calculator_for_nick
                 case CalculatorActions.Divide:
                     if (num2 == 0)
                     {
-                        Console.WriteLine("It is not relevant");
-                        return float.NaN;
+                        Console.WriteLine("Error!!! you can't divide by zero!");
+                        return 0;
                     }
                     return num1 / num2;
                 default:
-                    Console.WriteLine("It is not relevant");
-                    return float.NaN;
+                    Console.WriteLine("Error!!! Unknown action for calculation.");
+                    return num1;
             }
         }
     }
