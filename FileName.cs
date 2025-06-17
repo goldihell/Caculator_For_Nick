@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace caculator_for_nick
+namespace Calculator_for_nick
 {
     internal class Program
     {
@@ -23,7 +23,8 @@ namespace caculator_for_nick
 
             float result = CalculateResult(action, num1, num2);
 
-            Console.WriteLine(result);
+            string actionSymbol = GetActionSymbol(action);
+            Console.WriteLine("Your action was:" + num1 + actionSymbol + num2 + "  And the result is:" + result);
         }
 
         static float GetNumber()
@@ -68,6 +69,22 @@ namespace caculator_for_nick
             }
         }
 
+        static string GetActionSymbol(CalculatorActions action)
+        {
+            switch (action)
+            {
+                case CalculatorActions.Add:
+                    return "+";
+                case CalculatorActions.Subtract:
+                    return "-";
+                case CalculatorActions.Multiply:
+                    return "*";
+                case CalculatorActions.Divide:
+                    return "/";
+                default:
+                    return "!";
+            }
+        }
         static float CalculateResult(CalculatorActions action, float num1, float num2)
         {
             switch (action)
@@ -81,11 +98,13 @@ namespace caculator_for_nick
                 case CalculatorActions.Divide:
                     if (num2 == 0)
                     {
-                        return 80085;
+                        Console.WriteLine("It is not relevant");
+                        return float.NaN;
                     }
                     return num1 / num2;
                 default:
-                    return 80085;
+                    Console.WriteLine("It is not relevant");
+                    return float.NaN;
             }
         }
     }
