@@ -1,0 +1,8 @@
+C:\Users\YUVAL\source\repos\caculator for nick\caculator for nick\obj\Debug\caculator for nick.csproj.AssemblyReference.cache
+C:\Users\YUVAL\source\repos\caculator for nick\caculator for nick\obj\Debug\caculator for nick.csproj.CoreCompileInputs.cache
+C:\Users\YUVAL\source\repos\caculator for nick\caculator for nick\bin\Debug\caculator for nick.exe.config
+C:\Users\YUVAL\source\repos\caculator for nick\caculator for nick\bin\Debug\caculator for nick.exe
+C:\Users\YUVAL\source\repos\caculator for nick\caculator for nick\bin\Debug\caculator for nick.pdb
+C:\Users\YUVAL\source\repos\caculator for nick\caculator for nick\obj\Debug\caculator for nick.exe
+C:\Users\YUVAL\source\repos\caculator for nick\caculator for nick\obj\Debug\caculator for nick.pdb
+C:\Users\YUVAL\source\repos\caculator for nick\caculator for nick\obj\Debug\caculator for nick.exe.config
