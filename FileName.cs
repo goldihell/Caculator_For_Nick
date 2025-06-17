@@ -8,7 +8,7 @@ namespace caculator_for_nick
 {
     internal class Program
     {
-        enum ActionType { Add, Subtract, Multiply, Divide }
+        enum CalculatorActions { Add, Subtract, Multiply, Divide }
 
         static void Main(string[] args)
         {
@@ -16,7 +16,7 @@ namespace caculator_for_nick
             float num1 = GetNumber();
 
             Console.WriteLine("Choose the action you want please (+, -, *, /):");
-            ActionType action = GetAction();
+            CalculatorActions action = GetAction();
 
             Console.WriteLine("Enter the second number please:");
             float num2 = GetNumber();
@@ -45,7 +45,7 @@ namespace caculator_for_nick
             }
         }
 
-        static ActionType GetAction()
+        static CalculatorActions GetAction()
         {
             while (true)
             {
@@ -54,13 +54,13 @@ namespace caculator_for_nick
                 switch (input)
                 {
                     case "+":
-                        return ActionType.Add;
+                        return CalculatorActions.Add;
                     case "-":
-                        return ActionType.Subtract;
+                        return CalculatorActions.Subtract;
                     case "*":
-                        return ActionType.Multiply;
+                        return CalculatorActions.Multiply;
                     case "/":
-                        return ActionType.Divide;
+                        return CalculatorActions.Divide;
                     default:
                         Console.WriteLine("Invalid action. Please enter one of (+, -, *, /):");
                         break;
@@ -68,17 +68,17 @@ namespace caculator_for_nick
             }
         }
 
-        static float CalculateResult(ActionType action, float num1, float num2)
+        static float CalculateResult(CalculatorActions action, float num1, float num2)
         {
             switch (action)
             {
-                case ActionType.Add:
+                case CalculatorActions.Add:
                     return num1 + num2;
-                case ActionType.Subtract:
+                case CalculatorActions.Subtract:
                     return num1 - num2;
-                case ActionType.Multiply:
+                case CalculatorActions.Multiply:
                     return num1 * num2;
-                case ActionType.Divide:
+                case CalculatorActions.Divide:
                     if (num2 == 0)
                     {
                         return 80085;
