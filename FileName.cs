@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions; 
+using System.Text.RegularExpressions;
 
 namespace Calculator_for_nick
 {
@@ -10,10 +10,8 @@ namespace Calculator_for_nick
         static void Main(string[] args)
         {
             WelcomeMessage();
-
             CalculatorLoop();
         }
-
 
         static void WelcomeMessage()
         {
@@ -21,13 +19,11 @@ namespace Calculator_for_nick
             Console.WriteLine("Supported operations: +, -, *, /");
         }
 
-
         static void CalculatorLoop()
         {
             while (true)
             {
                 string input = GetInput("Enter the expression: ");
-
                 ProcessExpression(input);
             }
         }
@@ -42,17 +38,15 @@ namespace Calculator_for_nick
         {
             try
             {
-                
-                string correctedExpression = CorrectDecimalFormat(expression);
-                string cleanedInput = CleanExpression(correctedExpression); 
+                string cleanedInput = CleanExpression(expression);
 
-                float result = EvaluateMathematicalExpression(cleanedInput); 
-               
+                float result = EvaluateMathematicalExpression(cleanedInput);
+
                 DisplayResult(expression, result);
             }
             catch (FormatException ex)
             {
-                Console.WriteLine("Input Error:"+ ex.Message);
+                Console.WriteLine("Input Error: " + ex.Message);
             }
             catch (DivideByZeroException)
             {
@@ -60,32 +54,23 @@ namespace Calculator_for_nick
             }
             catch (Exception ex)
             {
-                Console.WriteLine("An unexpected error occurred:"+ ex.Message);
+                Console.WriteLine("An unexpected error occurred: " + ex.Message);
             }
         }
-
-        
-        static string CorrectDecimalFormat(string expression)
-        {
-
-            return Regex.Replace(expression, @"(?<!\d)\.(\d+)", "0.$1");
-        }
-
 
         static string CleanExpression(string expression)
         {
             return expression.Replace(" ", "");
         }
 
-
         static void DisplayResult(string originalExpression, float result)
         {
-            Console.WriteLine("Result:"+ originalExpression+"="+ result);
+            Console.WriteLine("Result: " + originalExpression + " = " + result);
         }
 
         static float EvaluateMathematicalExpression(string expression)
         {
-            List<string> tokens = TokenizeExpression(expression); 
+            List<string> tokens = TokenizeExpression(expression);
 
             List<float> numbers = new List<float>();
             List<char> operators = new List<char>();
@@ -97,28 +82,81 @@ namespace Calculator_for_nick
             return ProcessLowPrecedenceOperations(numbers, operators);
         }
 
-        
         static List<string> TokenizeExpression(string expression)
         {
-            var tokens = Regex.Matches(expression, @"(?<=\A-|\D-)?(\d+\.?\d*)|([+\-*/])")
-                                 .Cast<Match>()
-                                 .Select(m => m.Value)
-                                 .ToList();
+            List<string> rawTokens = new List<string>();
 
-            for (int i = 0; i < tokens.Count; i++)
+            string pattern = @"(\d+(?:\.\d+)?)|([+\-*/])|(.)";
+            MatchCollection matches = Regex.Matches(expression, pattern);
+
+            int lastIndex = 0;
+
+            foreach (Match m in matches)
             {
-                if (tokens[i] == "-" && i + 1 < tokens.Count && float.TryParse(tokens[i + 1], out _))
+                if (m.Index > lastIndex)
                 {
-                    if (i == 0 || (i > 0 && IsOperator(tokens[i - 1][0])))
-                    {
-                        tokens[i] = "-" + tokens[i + 1];
-                        tokens.RemoveAt(i + 1);
-                    }
+                    throw new FormatException("Invalid character sequence detected: '" + expression.Substring(lastIndex, m.Index - lastIndex) + "'.");
                 }
+
+                if (m.Groups[3].Success)
+                {
+                    throw new FormatException("Invalid character: '" + m.Value + "'.");
+                }
+
+                rawTokens.Add(m.Value);
+                lastIndex = m.Index + m.Length;
             }
 
-            return tokens;
+            if (lastIndex < expression.Length)
+            {
+                throw new FormatException("Invalid trailing characters: '" + expression.Substring(lastIndex) + "'.");
+            }
+
+            List<string> finalTokens = new List<string>();
+            for (int i = 0; i < rawTokens.Count; i++)
+            {
+                string currentToken = rawTokens[i];
+
+                if (currentToken == "-")
+                {
+                    if (i + 1 < rawTokens.Count && float.TryParse(rawTokens[i + 1], out _))
+                    {
+                        bool isUnary = false;
+                        if (i == 0)
+                        {
+                            isUnary = true;
+                        }
+                        else
+                        {
+                            string prevToken = rawTokens[i - 1];
+                            if (IsOperator(prevToken[0]) && prevToken != "-")
+                            {
+                                isUnary = true;
+                            }
+                            else if (prevToken == "-")
+                            {
+                                finalTokens[finalTokens.Count - 1] = "+";
+                                finalTokens.Add(rawTokens[i + 1]);
+                                i++;
+                                continue;
+                            }
+                        }
+
+                        if (isUnary)
+                        {
+                            finalTokens.Add("-" + rawTokens[i + 1]);
+                            i++;
+                            continue;
+                        }
+                    }
+                }
+
+                finalTokens.Add(currentToken);
+            }
+
+            return finalTokens;
         }
+
 
         static void PopulateNumbersAndOperators(List<string> tokens, List<float> numbers, List<char> operators)
         {
@@ -134,7 +172,7 @@ namespace Calculator_for_nick
                 }
                 else
                 {
-                    throw new FormatException("Invalid token "+ token +"found in expression.");
+                    throw new FormatException("Invalid number or operator format: '" + token + "'. Please check your expression for typos or unexpected characters.");
                 }
             }
         }
@@ -205,12 +243,13 @@ namespace Calculator_for_nick
                 }
                 else
                 {
-                    throw new InvalidOperationException("Unexpected operator "+op+ "after precedence handling.");
+                    throw new InvalidOperationException("Unexpected operator " + op + " after precedence handling.");
                 }
             }
 
             return finalResult;
         }
+
         static bool IsOperator(char c)
         {
             return c == '+' || c == '-' || c == '*' || c == '/';
